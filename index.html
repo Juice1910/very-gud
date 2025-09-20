@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เว็บสุ่มคำคมฮาๆ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+      background: #f0f0f0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: none;
+      background: #007bff;
+      color: white;
+    }
+    #rarityBox {
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 20px;
+      width: 250px;
+      color: white;
+      display: none;
+    }
+    #quoteBox {
+      margin-top: 30px;
+      font-size: 22px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 1s ease-in;
+    }
+    .common { background: gray; }
+    .rare { background: blue; }
+    .epic { background: purple; }
+    .legendary { background: orange; }
+  </style>
+</head>
+<body>
+  <h1>สุ่มคำคมฮาๆ</h1>
+  <button onclick="startRoll()">กดเพื่อสุ่ม!</button>
+  <div id="rarityBox"></div>
+  <div id="quoteBox"></div>
+
+  <script>
+    const quotes = [
+      // Common
+      { text: "ก็มีแต่โจรเท่านั้นแหละที่ลักจริง", rarity: "common" },
+      { text: "โตขึ้นถึงได้รู้ว่า โลกไม่ได้สวยงามเหมือนเรา", rarity: "common" },
+      { text: "ปวดหลังอีกแล้ว สงสัยแบกความสวยเยอะไปหน่อย", rarity: "common" },
+      { text: "เป็นคนไม่เอาถ่าน เพราะที่บ้านมีเตาเเก๊ส", rarity: "common" },
+      // Rare
+      { text: "ความรักก็เหมือนลม มองไม่เห็นแต่ทำให้หายใจติดขัด", rarity: "rare" },
+      { text: "เรื่องรักไม่ค่อยชอบ แต่ถ้ามีหมูกรอบเรียกเราด้วย", rarity: "rare" },
+      { text: "เพิ่งรู้ตัวว่าสายเกินไป ก็ตอนที่ตื่นมาตอนเที่ยงนี่แหละ", rarity: "rare" },
+      { text: "ไม่ต้องมีหรอก six pack มีแต่ snack ก็ได้ใจแล้ว", rarity: "rare" },
+      // Epic
+      { text: "การบ้านก็เหมือนความรัก ยิ่งพยายามยิ่งไม่เสร็จ", rarity: "epic" },
+      { text: "ชีวิตคือการเดินทาง แต่ถ้าง่วงให้นอนก่อน", rarity: "epic" },
+      { text: "คิดว่าตัวเองสูง 180 มาตลอด พอไปวัดเท่านั้นแหละ เจอพระ", rarity: "epic" },
+      // Legendary
+      { text: "ไปดูดวงมา หมอดูทักว่า สวัสดี", rarity: "legendary" },
+      { text: "ข้าวที่กินยากคือข้าวมันไกล", rarity: "legendary" },
+      { text: "ใบไม้ยังมีวันร่วงแล้วคนง่วงอย่างผมจะเหลืออะไร", rarity: "legendary" },
+      { text: "คำคมก็ต้องคิด คณิตก็ต้องทำ", rarity: "legendary" }
+    ];
+
+    const rarities = [
+      { name: "common", chance: 45 },
+      { name: "rare", chance: 30 },
+      { name: "epic", chance: 15 },
+      { name: "legendary", chance: 10 }
+    ];
+
+    function startRoll() {
+      const box = document.getElementById("rarityBox");
+      const quoteBox = document.getElementById("quoteBox");
+      quoteBox.style.opacity = 0;
+      box.style.display = "block";
+
+      let cycles = 20; 
+      let i = 0;
+
+      let rollInterval = setInterval(() => {
+        const r = rarities[Math.floor(Math.random() * rarities.length)];
+        box.textContent = r.name.toUpperCase();
+        box.className = r.name;
+
+        i++;
+        if (i >= cycles) {
+          clearInterval(rollInterval);
+          const finalRarity = getRarity();
+          box.textContent = finalRarity.toUpperCase();
+          box.className = finalRarity;
+
+          const filtered = quotes.filter(q => q.rarity === finalRarity);
+          const finalQuote = filtered[Math.floor(Math.random() * filtered.length)];
+
+          setTimeout(() => {
+            quoteBox.textContent = finalQuote.text;
+            quoteBox.style.opacity = 1;
+          }, 500);
+        }
+      }, 100 + i * 20);
+    }
+
+    function getRarity() {
+      let rnd = Math.random() * 100;
+      let sum = 0;
+      for (let r of rarities) {
+        sum += r.chance;
+        if (rnd < sum) return r.name;
+      }
+      return "common";
+    }
+  </script>
+</body>
+</html>
