@@ -91,7 +91,7 @@
       { name: "legendary", chance: 10 }
     ];
 
-    let lastQuote = null; // ✅ กันซ้ำ
+    let lastQuote = null; // กันซ้ำ
 
     function startRoll() {
       const box = document.getElementById("rarityBox");
@@ -102,7 +102,7 @@
       let cycles = 20; 
       let i = 0;
 
-      let rollInterval = setInterval(() => {
+      const rollInterval = setInterval(() => {
         const r = rarities[Math.floor(Math.random() * rarities.length)];
         box.textContent = r.name.toUpperCase();
         box.className = r.name;
@@ -110,11 +110,12 @@
         i++;
         if (i >= cycles) {
           clearInterval(rollInterval);
+
           const finalRarity = getRarity();
           box.textContent = finalRarity.toUpperCase();
           box.className = finalRarity;
 
-          // ✅ ดีเลย์ 0.5 วิ ก่อนโชว์คำคม
+          // ดีเลย์ 0.5 วิก่อนโชว์คำคม
           setTimeout(() => {
             const filtered = quotes.filter(q => q.rarity === finalRarity);
 
@@ -129,7 +130,7 @@
             quoteBox.style.opacity = 1;
           }, 500);
         }
-      }, 100 + i * 20);
+      }, 100);
     }
 
     function getRarity() {
