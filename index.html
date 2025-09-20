@@ -59,7 +59,6 @@
       { text: "มดอะไรหายาก ม่ดแล่ว", rarity: "common" },
       { text: "ผมหยิกเจ็บมั้ย", rarity: "common" },
       { text: "ไหอะไรสีแดง... ไหจัว", rarity: "common" },
-      { text: "คิดว่าตัวเองสูง 180 มาตลอด พอไปวัดเท่านั้นแหละ เจอพระ", rarity: "epic" },
       { text: "แมวอะไรห้ามขับรถ...แมวล้าว", rarity: "common" },
       // Rare
       { text: "สุ่มใหม่ๆ", rarity: "rare" },
@@ -70,6 +69,7 @@
       { text: "ลิงอะไรปวดท้อง...ลิงชิมเปนซี", rarity: "rare" },
       { text: "พระอะไรกินได้...พะโล้", rarity: "rare" },
       // Epic
+      { text: "คิดว่าตัวเองสูง 180 มาตลอด พอไปวัดเท่านั้นแหละ เจอพระ", rarity: "epic" },
       { text: "ได้ legendary ยัง", rarity: "epic" },
       { text: "มีด (คำคม)", rarity: "epic" },
       { text: "ชีวิตคือการเดินทาง แต่ถ้าง่วงให้นอนก่อน", rarity: "epic" },
@@ -91,6 +91,8 @@
       { name: "legendary", chance: 10 }
     ];
 
+    let lastQuote = null; // ✅ ตัวแปรกันซ้ำ
+
     function startRoll() {
       const box = document.getElementById("rarityBox");
       const quoteBox = document.getElementById("quoteBox");
@@ -111,46 +113,16 @@
           const finalRarity = getRarity();
           box.textContent = finalRarity.toUpperCase();
           box.className = finalRarity;
-          
-let lastQuote = null; // เอาไปไว้บนสุดนอก function startRoll()
 
-function startRoll() {
-  const box = document.getElementById("rarityBox");
-  const quoteBox = document.getElementById("quoteBox");
-  quoteBox.style.opacity = 0;
-  box.style.display = "block";
+          const filtered = quotes.filter(q => q.rarity === finalRarity);
 
-  let cycles = 20; 
-  let i = 0;
+          let finalQuote;
+          do {
+            finalQuote = filtered[Math.floor(Math.random() * filtered.length)];
+          } while (finalQuote === lastQuote && filtered.length > 1);
 
-  let rollInterval = setInterval(() => {
-    const r = rarities[Math.floor(Math.random() * rarities.length)];
-    box.textContent = r.name.toUpperCase();
-    box.className = r.name;
+          lastQuote = finalQuote;
 
-    i++;
-    if (i >= cycles) {
-      clearInterval(rollInterval);
-      const finalRarity = getRarity();
-      box.textContent = finalRarity.toUpperCase();
-      box.className = finalRarity;
-
-      const filtered = quotes.filter(q => q.rarity === finalRarity);
-
-      let finalQuote;
-      do {
-        finalQuote = filtered[Math.floor(Math.random() * filtered.length)];
-      } while (finalQuote === lastQuote && filtered.length > 1);
-
-      lastQuote = finalQuote;
-
-      setTimeout(() => {
-        quoteBox.textContent = finalQuote.text;
-        quoteBox.style.opacity = 1;
-      }, 500);
-    }
-  }, 100 + i * 20);
-}
           setTimeout(() => {
             quoteBox.textContent = finalQuote.text;
             quoteBox.style.opacity = 1;
