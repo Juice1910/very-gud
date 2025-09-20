@@ -1,147 +1,94 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>เว็บสุ่มคำคมฮาๆ</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 40px;
-      background: #f0f0f0;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 8px;
-      border: none;
-      background: #007bff;
-      color: white;
-    }
-    #rarityBox {
-      margin: 20px auto;
-      padding: 20px;
-      border-radius: 12px;
-      font-size: 20px;
-      width: 250px;
-      color: white;
-      display: none;
-    }
-    #quoteBox {
-      margin-top: 30px;
-      font-size: 22px;
-      font-weight: bold;
-      opacity: 0;
-      transition: opacity 1s ease-in;
-    }
-    .common { background: gray; }
-    .rare { background: blue; }
-    .epic { background: purple; }
-    .legendary { background: orange; }
-  </style>
-</head>
-<body>
-  <h1>สุ่มคำคมฮาๆ</h1>
-  <button onclick="startRoll()">กดเพื่อสุ่ม!</button>
-  <div id="rarityBox"></div>
-  <div id="quoteBox"></div>
+<script>
+  const quotes = [
+    // Common
+    { text: "ก็มีแต่โจรเท่านั้นแหละที่ลักจริง", rarity: "common" },
+    { text: "โตขึ้นถึงได้รู้ว่า โลกไม่ได้สวยงามเหมือนเรา", rarity: "common" },
+    { text: "อาจจะยังน้า", rarity: "common" },
+    { text: "เป็นคนไม่เอาถ่าน เพราะที่บ้านมีเตาเเก๊ส", rarity: "common" },
+    { text: "แมวที่อยู่ในน้ำคือแมวดำ เพราะแมวดำ น้ำ", rarity: "common" },
+    { text: "มดอะไรหายาก ม่ดแล่ว", rarity: "common" },
+    { text: "ผมหยิกเจ็บมั้ย", rarity: "common" },
+    { text: "ไหอะไรสีแดง... ไหจัว", rarity: "common" },
+    { text: "แมวอะไรห้ามขับรถ...แมวล้าว", rarity: "common" },
+    // Rare
+    { text: "สุ่มใหม่ๆ", rarity: "rare" },
+    { text: "ทะเลก็เหมือนไก่ กะต้ากๆ", rarity: "rare" },
+    { text: "เรื่องรักไม่ค่อยชอบ แต่ถ้ามีหมูกรอบเรียกเราด้วย", rarity: "rare" },
+    { text: "เพิ่งรู้ตัวว่าสายเกินไป ก็ตอนที่ตื่นมาตอนเที่ยงนี่แหละ", rarity: "rare" },
+    { text: "ไม่ต้องมีหรอก six pack มีแต่ snack ก็ได้ใจแล้ว", rarity: "rare" },
+    { text: "ลิงอะไรปวดท้อง...ลิงชิมเปนซี", rarity: "rare" },
+    { text: "พระอะไรกินได้...พะโล้", rarity: "rare" },
+    // Epic
+    { text: "คิดว่าตัวเองสูง 180 มาตลอด พอไปวัดเท่านั้นแหละ เจอพระ", rarity: "epic" },
+    { text: "ได้ legendary ยัง", rarity: "epic" },
+    { text: "มีด (คำคม)", rarity: "epic" },
+    { text: "ชีวิตคือการเดินทาง แต่ถ้าง่วงให้นอนก่อน", rarity: "epic" },
+    { text: "กาอะไรช้า กาดึบ", rarity: "epic" },
+    { text: "ถ้ามีผมระวังจอพังนะ เพราะไหล่โดนจอ", rarity: "epic" },
+    { text: "ช่วงนี้ล้มบ่อย หรือเป็นเพราะหล่อลื่น", rarity: "epic" },
+    // Legendary
+    { text: "ไปดูดวงมา หมอดูทักว่า สวัสดี", rarity: "legendary" },
+    { text: "ข้าวที่กินยากคือข้าวมันไกล", rarity: "legendary" },
+    { text: "ใบไม้ยังมีวันร่วงแล้วคนง่วงอย่างผมจะเหลืออะไร", rarity: "legendary" },
+    { text: "หมออะไรกินได้...หมอยู หมูยอ", rarity: "legendary" },
+    { text: "คำคมก็ต้องคิด คณิตก็ต้องทำ", rarity: "legendary" }
+  ];
 
-  <script>
-    const quotes = [
-      // Common
-      { text: "ก็มีแต่โจรเท่านั้นแหละที่ลักจริง", rarity: "common" },
-      { text: "โตขึ้นถึงได้รู้ว่า โลกไม่ได้สวยงามเหมือนเรา", rarity: "common" },
-      { text: "อาจจะยังน้า", rarity: "common" },
-      { text: "เป็นคนไม่เอาถ่าน เพราะที่บ้านมีเตาเเก๊ส", rarity: "common" },
-      { text: "แมวที่อยู่ในน้ำคือแมวดำ เพราะแมวดำ น้ำ", rarity: "common" },
-      { text: "มดอะไรหายาก ม่ดแล่ว", rarity: "common" },
-      { text: "ผมหยิกเจ็บมั้ย", rarity: "common" },
-      { text: "ไหอะไรสีแดง... ไหจัว", rarity: "common" },
-      { text: "แมวอะไรห้ามขับรถ...แมวล้าว", rarity: "common" },
-      // Rare
-      { text: "สุ่มใหม่ๆ", rarity: "rare" },
-      { text: "ทะเลก็เหมือนไก่ กะต้ากๆ", rarity: "rare" },
-      { text: "เรื่องรักไม่ค่อยชอบ แต่ถ้ามีหมูกรอบเรียกเราด้วย", rarity: "rare" },
-      { text: "เพิ่งรู้ตัวว่าสายเกินไป ก็ตอนที่ตื่นมาตอนเที่ยงนี่แหละ", rarity: "rare" },
-      { text: "ไม่ต้องมีหรอก six pack มีแต่ snack ก็ได้ใจแล้ว", rarity: "rare" },
-      { text: "ลิงอะไรปวดท้อง...ลิงชิมเปนซี", rarity: "rare" },
-      { text: "พระอะไรกินได้...พะโล้", rarity: "rare" },
-      // Epic
-      { text: "คิดว่าตัวเองสูง 180 มาตลอด พอไปวัดเท่านั้นแหละ เจอพระ", rarity: "epic" },
-      { text: "ได้ legendary ยัง", rarity: "epic" },
-      { text: "มีด (คำคม)", rarity: "epic" },
-      { text: "ชีวิตคือการเดินทาง แต่ถ้าง่วงให้นอนก่อน", rarity: "epic" },
-      { text: "กาอะไรช้า กาดึบ", rarity: "epic" },
-      { text: "ถ้ามีผมระวังจอพังนะ เพราะไหล่โดนจอ", rarity: "epic" },
-      { text: "ช่วงนี้ล้มบ่อย หรือเป็นเพราะหล่อลื่น", rarity: "epic" },
-      // Legendary
-      { text: "ไปดูดวงมา หมอดูทักว่า สวัสดี", rarity: "legendary" },
-      { text: "ข้าวที่กินยากคือข้าวมันไกล", rarity: "legendary" },
-      { text: "ใบไม้ยังมีวันร่วงแล้วคนง่วงอย่างผมจะเหลืออะไร", rarity: "legendary" },
-      { text: "หมออะไรกินได้...หมอยู หมูยอ", rarity: "legendary" },
-      { text: "คำคมก็ต้องคิด คณิตก็ต้องทำ", rarity: "legendary" }
-    ];
+  const rarities = [
+    { name: "common", chance: 45 },
+    { name: "rare", chance: 30 },
+    { name: "epic", chance: 15 },
+    { name: "legendary", chance: 10 }
+  ];
 
-    const rarities = [
-      { name: "common", chance: 45 },
-      { name: "rare", chance: 30 },
-      { name: "epic", chance: 15 },
-      { name: "legendary", chance: 10 }
-    ];
+  let lastQuote = null;
 
-    let lastQuote = null; // กันซ้ำ
+  function startRoll() {
+    const box = document.getElementById("rarityBox");
+    const quoteBox = document.getElementById("quoteBox");
+    quoteBox.style.opacity = 0;
+    box.style.display = "block";
 
-    function startRoll() {
-      const box = document.getElementById("rarityBox");
-      const quoteBox = document.getElementById("quoteBox");
-      quoteBox.style.opacity = 0;
-      box.style.display = "block";
+    let cycles = 20; 
+    let i = 0;
 
-      let cycles = 20; 
-      let i = 0;
+    let rollInterval = setInterval(() => {
+      const r = rarities[Math.floor(Math.random() * rarities.length)];
+      box.textContent = r.name.toUpperCase();
+      box.className = r.name;
 
-      const rollInterval = setInterval(() => {
-        const r = rarities[Math.floor(Math.random() * rarities.length)];
-        box.textContent = r.name.toUpperCase();
-        box.className = r.name;
+      i++;
+      if (i >= cycles) {
+        clearInterval(rollInterval);
+        
+        const finalRarity = getRarity();
+        box.textContent = finalRarity.toUpperCase();
+        box.className = finalRarity;
 
-        i++;
-        if (i >= cycles) {
-          clearInterval(rollInterval);
+        setTimeout(() => {
+          const filtered = quotes.filter(q => q.rarity === finalRarity);
 
-          const finalRarity = getRarity();
-          box.textContent = finalRarity.toUpperCase();
-          box.className = finalRarity;
+          let finalQuote;
+          do {
+            finalQuote = filtered[Math.floor(Math.random() * filtered.length)];
+          } while (finalQuote === lastQuote && filtered.length > 1);
 
-          // ดีเลย์ 0.5 วิก่อนโชว์คำคม
-          setTimeout(() => {
-            const filtered = quotes.filter(q => q.rarity === finalRarity);
+          lastQuote = finalQuote;
 
-            let finalQuote;
-            do {
-              finalQuote = filtered[Math.floor(Math.random() * filtered.length)];
-            } while (finalQuote === lastQuote && filtered.length > 1);
-
-            lastQuote = finalQuote;
-
-            quoteBox.textContent = finalQuote.text;
-            quoteBox.style.opacity = 1;
-          }, 500);
-        }
-      }, 100);
-    }
-
-    function getRarity() {
-      let rnd = Math.random() * 100;
-      let sum = 0;
-      for (let r of rarities) {
-        sum += r.chance;
-        if (rnd < sum) return r.name;
+          quoteBox.textContent = finalQuote.text;
+          quoteBox.style.opacity = 1;
+        }, 500);
       }
-      return "common";
+    }, 100);
+  }
+
+  function getRarity() {
+    let rnd = Math.random() * 100;
+    let sum = 0;
+    for (let r of rarities) {
+      sum += r.chance;
+      if (rnd < sum) return r.name;
     }
-  </script>
-</body>
-</html>
+    return "common";
+  }
+</script>
