@@ -111,9 +111,45 @@
           box.textContent = finalRarity.toUpperCase();
           box.className = finalRarity;
 
-          const filtered = quotes.filter(q => q.rarity === finalRarity);
-          const finalQuote = filtered[Math.floor(Math.random() * filtered.length)];
+          let lastQuote = null; // เอาไปไว้บนสุดนอก function startRoll()
 
+function startRoll() {
+  const box = document.getElementById("rarityBox");
+  const quoteBox = document.getElementById("quoteBox");
+  quoteBox.style.opacity = 0;
+  box.style.display = "block";
+
+  let cycles = 20; 
+  let i = 0;
+
+  let rollInterval = setInterval(() => {
+    const r = rarities[Math.floor(Math.random() * rarities.length)];
+    box.textContent = r.name.toUpperCase();
+    box.className = r.name;
+
+    i++;
+    if (i >= cycles) {
+      clearInterval(rollInterval);
+      const finalRarity = getRarity();
+      box.textContent = finalRarity.toUpperCase();
+      box.className = finalRarity;
+
+      const filtered = quotes.filter(q => q.rarity === finalRarity);
+
+      let finalQuote;
+      do {
+        finalQuote = filtered[Math.floor(Math.random() * filtered.length)];
+      } while (finalQuote === lastQuote && filtered.length > 1);
+
+      lastQuote = finalQuote;
+
+      setTimeout(() => {
+        quoteBox.textContent = finalQuote.text;
+        quoteBox.style.opacity = 1;
+      }, 500);
+    }
+  }, 100 + i * 20);
+}
           setTimeout(() => {
             quoteBox.textContent = finalQuote.text;
             quoteBox.style.opacity = 1;
