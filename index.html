@@ -91,7 +91,7 @@
       { name: "legendary", chance: 10 }
     ];
 
-    let lastQuote = null; // ✅ ตัวแปรกันซ้ำ
+    let lastQuote = null; // ✅ กันซ้ำ
 
     function startRoll() {
       const box = document.getElementById("rarityBox");
@@ -114,16 +114,17 @@
           box.textContent = finalRarity.toUpperCase();
           box.className = finalRarity;
 
-          const filtered = quotes.filter(q => q.rarity === finalRarity);
-
-          let finalQuote;
-          do {
-            finalQuote = filtered[Math.floor(Math.random() * filtered.length)];
-          } while (finalQuote === lastQuote && filtered.length > 1);
-
-          lastQuote = finalQuote;
-
+          // ✅ ดีเลย์ 0.5 วิ ก่อนโชว์คำคม
           setTimeout(() => {
+            const filtered = quotes.filter(q => q.rarity === finalRarity);
+
+            let finalQuote;
+            do {
+              finalQuote = filtered[Math.floor(Math.random() * filtered.length)];
+            } while (finalQuote === lastQuote && filtered.length > 1);
+
+            lastQuote = finalQuote;
+
             quoteBox.textContent = finalQuote.text;
             quoteBox.style.opacity = 1;
           }, 500);
