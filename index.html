@@ -36,12 +36,11 @@
       opacity: 0;
       transition: opacity 1s ease-in;
     }
-    /* สีตามระดับ */
     .common { background: gray; }
     .rare { background: blue; }
     .epic { background: purple; }
-    .legendary { background: orange; color: black; font-weight: bold; }
-    .mythic { background: saffron red; }
+    .legendary { background: orange; }   /* ✅ ปรับเป็นส้ม */
+    .mythic { background: crimson; }     /* ✅ สีแดงไม่แสบตา */
   </style>
 </head>
 <body>
@@ -49,14 +48,6 @@
   <button onclick="startRoll()">กดเพื่อสุ่ม!</button>
   <div id="rarityBox"></div>
   <div id="quoteBox"></div>
-
-  <!-- โหลดเสียง -->
-  <audio id="rollSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-  <audio id="commonSound" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
-  <audio id="rareSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-  <audio id="epicSound" src="https://actions.google.com/sounds/v1/cartoon/slide_whistle_to_drum.ogg"></audio>
-  <audio id="legendarySound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-  <audio id="mythicSound" src="https://actions.google.com/sounds/v1/cartoon/metal_twang.ogg"></audio>
 
   <script>
     const quotes = [
@@ -70,6 +61,7 @@
       { text: "ผมหยิกเจ็บมั้ย", rarity: "common" },
       { text: "ไหอะไรสีแดง... ไหจัว", rarity: "common" },
       { text: "แมวอะไรห้ามขับรถ...แมวล้าว", rarity: "common" },
+
       // Rare
       { text: "สุ่มใหม่ๆ", rarity: "rare" },
       { text: "ทะเลก็เหมือนไก่ กะต้ากๆ", rarity: "rare" },
@@ -78,6 +70,7 @@
       { text: "ไม่ต้องมีหรอก six pack มีแต่ snack ก็ได้ใจแล้ว", rarity: "rare" },
       { text: "ลิงอะไรปวดท้อง...ลิงชิมเปนซี", rarity: "rare" },
       { text: "พระอะไรกินได้...พะโล้", rarity: "rare" },
+
       // Epic
       { text: "คิดว่าตัวเองสูง 180 มาตลอด พอไปวัดเท่านั้นแหละ เจอพระ", rarity: "epic" },
       { text: "ได้ legendary ยัง", rarity: "epic" },
@@ -86,12 +79,14 @@
       { text: "กาอะไรช้า กาดึบ", rarity: "epic" },
       { text: "ถ้ามีผมระวังจอพังนะ เพราะไหล่โดนจอ", rarity: "epic" },
       { text: "ช่วงนี้ล้มบ่อย หรือเป็นเพราะหล่อลื่น", rarity: "epic" },
+
       // Legendary
       { text: "ไปดูดวงมา หมอดูทักว่า สวัสดี", rarity: "legendary" },
       { text: "ข้าวที่กินยากคือข้าวมันไกล", rarity: "legendary" },
       { text: "ใบไม้ยังมีวันร่วงแล้วคนง่วงอย่างผมจะเหลืออะไร", rarity: "legendary" },
       { text: "หมออะไรกินได้...หมอยู หมูยอ", rarity: "legendary" },
       { text: "คำคมก็ต้องคิด คณิตก็ต้องทำ", rarity: "legendary" },
+
       // Mythic
       { text: "ฝันที่ว่าดียังไม่เท่าเจอปารมีที่โรงเรียน", rarity: "mythic" }
     ];
@@ -106,6 +101,18 @@
 
     let lastQuote = null;
 
+    // ✅ ฟังก์ชันเล่นเสียงแบบไม่ error ถ้าไฟล์ไม่มี
+    function playSound(rarity) {
+      let file = "";
+      if (rarity === "rolling") file = "sounds/rolling.mp3";
+      else file = `sounds/${rarity}.mp3`;
+
+      const audio = new Audio(file);
+      audio.play().catch(() => {
+        console.log("⚠️ No sound file for:", file);
+      });
+    }
+
     function startRoll() {
       const box = document.getElementById("rarityBox");
       const quoteBox = document.getElementById("quoteBox");
@@ -115,8 +122,9 @@
       let cycles = 20; 
       let i = 0;
 
+      playSound("rolling"); // ✅ เล่นเสียงตอนสุ่ม
+
       let rollInterval = setInterval(() => {
-        document.getElementById("rollSound").play(); // 🔊 เสียงตอนหมุน
         const r = rarities[Math.floor(Math.random() * rarities.length)];
         box.textContent = r.name.toUpperCase();
         box.className = r.name;
@@ -129,10 +137,8 @@
           box.textContent = finalRarity.toUpperCase();
           box.className = finalRarity;
 
-          // ✅ เล่นเสียงตามระดับ
-          playRaritySound(finalRarity);
+          playSound(finalRarity); // ✅ เล่นเสียงตอนออกผล
 
-          // ✅ ดีเลย์ 0.5 วิ ก่อนโชว์คำคม
           setTimeout(() => {
             const filtered = quotes.filter(q => q.rarity === finalRarity);
 
@@ -158,21 +164,6 @@
         if (rnd < sum) return r.name;
       }
       return "common";
-    }
-
-    function playRaritySound(rarity) {
-      const sounds = {
-        common: "commonSound",
-        rare: "rareSound",
-        epic: "epicSound",
-        legendary: "legendarySound",
-        mythic: "mythicSound"
-      };
-      const sound = document.getElementById(sounds[rarity]);
-      if (sound) {
-        sound.currentTime = 0;
-        sound.play();
-      }
     }
   </script>
 </body>
