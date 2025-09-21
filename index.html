@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>เว็บสุ่มคำคมฮาๆ</title>
+  <title>เว็บสุ่มคำคมพารมี + เสียง</title>
   <style>
     body {
       font-family: sans-serif;
@@ -22,31 +22,38 @@
     }
     #rarityBox {
       margin: 20px auto;
-      padding: 20px;
-      border-radius: 12px;
-      font-size: 20px;
-      width: 250px;
-      color: white;
-      display: none;
-    }
-    #quoteBox {
-      margin-top: 30px;
+      padding: 15px;
       font-size: 22px;
       font-weight: bold;
-      opacity: 0;
-      transition: opacity 1s ease-in;
     }
-    .common { background: gray; }
-    .rare { background: blue; }
-    .epic { background: purple; }
-    .legendary { background: orange; }
+    #quoteBox {
+      margin: 20px auto;
+      padding: 20px;
+      font-size: 20px;
+      background: white;
+      border-radius: 10px;
+      max-width: 500px;
+    }
+    .common { color: gray; }
+    .rare { color: green; }
+    .epic { color: purple; }
+    .legendary { color: gold; }
+    .mythic { color: red; }
   </style>
 </head>
 <body>
-  <h1>สุ่มคำคมฮาๆ</h1>
-  <button onclick="startRoll()">กดเพื่อสุ่ม!</button>
+  <h1>สุ่มคำคมพารมี + เสียง</h1>
+  <button onclick="startRoll()">สุ่มเลย!</button>
   <div id="rarityBox"></div>
   <div id="quoteBox"></div>
+
+  <!-- เสียง -->
+  <audio id="soundRoll" src="roll.mp3"></audio>
+  <audio id="soundCommon" src="common.mp3"></audio>
+  <audio id="soundRare" src="rare.mp3"></audio>
+  <audio id="soundEpic" src="epic.mp3"></audio>
+  <audio id="soundLegendary" src="legendary.mp3"></audio>
+  <audio id="soundMythic" src="mythic.mp3"></audio>
 
   <script>
     const quotes = [
@@ -59,7 +66,9 @@
       { text: "มดอะไรหายาก ม่ดแล่ว", rarity: "common" },
       { text: "ผมหยิกเจ็บมั้ย", rarity: "common" },
       { text: "ไหอะไรสีแดง... ไหจัว", rarity: "common" },
+      { text: "แมวอะไรห้ามขับรถ...แมวล้าว", rarity: "common" },
       // Rare
+      { text: "สุ่มใหม่ๆ", rarity: "rare" },
       { text: "ทะเลก็เหมือนไก่ กะต้ากๆ", rarity: "rare" },
       { text: "เรื่องรักไม่ค่อยชอบ แต่ถ้ามีหมูกรอบเรียกเราด้วย", rarity: "rare" },
       { text: "เพิ่งรู้ตัวว่าสายเกินไป ก็ตอนที่ตื่นมาตอนเที่ยงนี่แหละ", rarity: "rare" },
@@ -72,21 +81,24 @@
       { text: "มีด (คำคม)", rarity: "epic" },
       { text: "ชีวิตคือการเดินทาง แต่ถ้าง่วงให้นอนก่อน", rarity: "epic" },
       { text: "กาอะไรช้า กาดึบ", rarity: "epic" },
-      { text: "ถ้าเจเผมระวังจอพังนะ เพราะไหล่โดนจอ", rarity: "epic" },
+      { text: "ถ้ามีผมระวังจอพังนะ เพราะไหล่โดนจอ", rarity: "epic" },
       { text: "ช่วงนี้ล้มบ่อย หรือเป็นเพราะหล่อลื่น", rarity: "epic" },
       // Legendary
       { text: "ไปดูดวงมา หมอดูทักว่า สวัสดี", rarity: "legendary" },
       { text: "ข้าวที่กินยากคือข้าวมันไกล", rarity: "legendary" },
       { text: "ใบไม้ยังมีวันร่วงแล้วคนง่วงอย่างผมจะเหลืออะไร", rarity: "legendary" },
       { text: "หมออะไรกินได้...หมอยู หมูยอ", rarity: "legendary" },
-      { text: "คำคมก็ต้องคิด คณิตก็ต้องทำ", rarity: "legendary" }
+      { text: "คำคมก็ต้องคิด คณิตก็ต้องทำ", rarity: "legendary" },
+      // Mythic
+      { text: "ฝันที่ว่าดียังไม่เท่าเจอปารมีที่โรงเรียน", rarity: "mythic" }
     ];
 
     const rarities = [
-      { name: "common", chance: 45 },
-      { name: "rare", chance: 30 },
-      { name: "epic", chance: 15 },
-      { name: "legendary", chance: 10 }
+      { type: "mythic", chance: 5 },
+      { type: "legendary", chance: 10 },
+      { type: "epic", chance: 15 },
+      { type: "rare", chance: 25 },
+      { type: "common", chance: 45 }
     ];
 
     let lastQuote = null;
@@ -97,32 +109,38 @@
       quoteBox.style.opacity = 0;
       box.style.display = "block";
 
-      let cycles = 20; 
+      // เล่นเสียงตอนเริ่มสุ่ม
+      const sroll = document.getElementById("soundRoll");
+      if (sroll) sroll.play();
+
+      let cycles = 20;
       let i = 0;
 
-      let rollInterval = setInterval(() => {
-        const r = rarities[Math.floor(Math.random() * rarities.length)];
-        box.textContent = r.name.toUpperCase();
-        box.className = r.name;
+      const rollInterval = setInterval(() => {
+        const r = getRarity();
+        box.textContent = r.toUpperCase();
+        box.className = r;
 
         i++;
         if (i >= cycles) {
           clearInterval(rollInterval);
-
           const finalRarity = getRarity();
           box.textContent = finalRarity.toUpperCase();
           box.className = finalRarity;
 
+          // เล่นเสียงของระดับ
+          const sid = "sound" + finalRarity.charAt(0).toUpperCase() + finalRarity.slice(1);
+          const s = document.getElementById(sid);
+          if (s) s.play();
+
           setTimeout(() => {
             const filtered = quotes.filter(q => q.rarity === finalRarity);
-
             let finalQuote;
             do {
               finalQuote = filtered[Math.floor(Math.random() * filtered.length)];
             } while (finalQuote === lastQuote && filtered.length > 1);
 
             lastQuote = finalQuote;
-
             quoteBox.textContent = finalQuote.text;
             quoteBox.style.opacity = 1;
           }, 500);
@@ -131,11 +149,14 @@
     }
 
     function getRarity() {
-      let rnd = Math.random() * 100;
+      const total = rarities.reduce((sum, r) => sum + r.chance, 0);
+      let rnd = Math.random() * total;
       let sum = 0;
       for (let r of rarities) {
         sum += r.chance;
-        if (rnd < sum) return r.name;
+        if (rnd < sum) {
+          return r.type;
+        }
       }
       return "common";
     }
