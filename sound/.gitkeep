@@ -1,1 +1,3 @@
-
+git mv sound sounds
+git commit -m "Rename folder sound → sounds"
+git push
