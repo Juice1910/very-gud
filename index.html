@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>เว็บสุ่มคำคมพารมี + เสียง</title>
+  <title>เว็บสุ่มคำคมฮาๆ</title>
   <style>
     body {
       font-family: sans-serif;
@@ -22,38 +22,40 @@
     }
     #rarityBox {
       margin: 20px auto;
-      padding: 15px;
-      font-size: 22px;
-      font-weight: bold;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 20px;
+      width: 250px;
+      color: white;
+      display: none;
     }
     #quoteBox {
-      margin: 20px auto;
-      padding: 20px;
-      font-size: 20px;
-      background: white;
-      border-radius: 10px;
-      max-width: 500px;
+      margin-top: 30px;
+      font-size: 22px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 1s ease-in;
     }
-    .common { color: gray; }
-    .rare { color: green; }
-    .epic { color: purple; }
-    .legendary { color: gold; }
-    .mythic { color: red; }
+    .common { background: gray; }
+    .rare { background: blue; }
+    .epic { background: purple; }
+    .legendary { background: gold; color: black; font-weight: bold; }
+    .mythic { background: red; }
   </style>
 </head>
 <body>
-  <h1>สุ่มคำคมพารมี + เสียง</h1>
-  <button onclick="startRoll()">สุ่มเลย!</button>
+  <h1>สุ่มคำคมฮาๆ</h1>
+  <button onclick="startRoll()">กดเพื่อสุ่ม!</button>
   <div id="rarityBox"></div>
   <div id="quoteBox"></div>
 
-  <!-- เสียง -->
-  <audio id="soundRoll" src="roll.mp3"></audio>
-  <audio id="soundCommon" src="common.mp3"></audio>
-  <audio id="soundRare" src="rare.mp3"></audio>
-  <audio id="soundEpic" src="epic.mp3"></audio>
-  <audio id="soundLegendary" src="legendary.mp3"></audio>
-  <audio id="soundMythic" src="mythic.mp3"></audio>
+  <!-- โหลดเสียง -->
+  <audio id="rollSound" src="sounds/roll.mp3" preload="auto"></audio>
+  <audio id="commonSound" src="sounds/common.mp3" preload="auto"></audio>
+  <audio id="rareSound" src="sounds/rare.mp3" preload="auto"></audio>
+  <audio id="epicSound" src="sounds/epic.mp3" preload="auto"></audio>
+  <audio id="legendarySound" src="sounds/legendary.mp3" preload="auto"></audio>
+  <audio id="mythicSound" src="sounds/mythic.mp3" preload="auto"></audio>
 
   <script>
     const quotes = [
@@ -93,15 +95,24 @@
       { text: "ฝันที่ว่าดียังไม่เท่าเจอปารมีที่โรงเรียน", rarity: "mythic" }
     ];
 
+    // ✅ ปรับเปอร์เซ็นต์ได้ง่าย ๆ ตรงนี้
     const rarities = [
-      { type: "mythic", chance: 5 },
-      { type: "legendary", chance: 10 },
-      { type: "epic", chance: 15 },
-      { type: "rare", chance: 25 },
-      { type: "common", chance: 45 }
+      { name: "common", chance: 45 },
+      { name: "rare", chance: 30 },
+      { name: "epic", chance: 15 },
+      { name: "legendary", chance: 8 },
+      { name: "mythic", chance: 2 }
     ];
 
     let lastQuote = null;
+
+    function playSound(rarity) {
+      if (rarity === "rolling") {
+        document.getElementById("rollSound").play();
+      } else {
+        document.getElementById(rarity + "Sound").play();
+      }
+    }
 
     function startRoll() {
       const box = document.getElementById("rarityBox");
@@ -109,38 +120,36 @@
       quoteBox.style.opacity = 0;
       box.style.display = "block";
 
-      // เล่นเสียงตอนเริ่มสุ่ม
-      const sroll = document.getElementById("soundRoll");
-      if (sroll) sroll.play();
-
       let cycles = 20;
       let i = 0;
 
-      const rollInterval = setInterval(() => {
-        const r = getRarity();
-        box.textContent = r.toUpperCase();
-        box.className = r;
+      playSound("rolling"); // 🔊 เสียงตอนกำลังสุ่ม
+
+      let rollInterval = setInterval(() => {
+        const r = rarities[Math.floor(Math.random() * rarities.length)];
+        box.textContent = r.name.toUpperCase();
+        box.className = r.name;
 
         i++;
         if (i >= cycles) {
           clearInterval(rollInterval);
+
           const finalRarity = getRarity();
           box.textContent = finalRarity.toUpperCase();
           box.className = finalRarity;
 
-          // เล่นเสียงของระดับ
-          const sid = "sound" + finalRarity.charAt(0).toUpperCase() + finalRarity.slice(1);
-          const s = document.getElementById(sid);
-          if (s) s.play();
+          playSound(finalRarity); // 🔊 เล่นเสียงตามระดับ
 
           setTimeout(() => {
             const filtered = quotes.filter(q => q.rarity === finalRarity);
+
             let finalQuote;
             do {
               finalQuote = filtered[Math.floor(Math.random() * filtered.length)];
             } while (finalQuote === lastQuote && filtered.length > 1);
 
             lastQuote = finalQuote;
+
             quoteBox.textContent = finalQuote.text;
             quoteBox.style.opacity = 1;
           }, 500);
@@ -149,14 +158,11 @@
     }
 
     function getRarity() {
-      const total = rarities.reduce((sum, r) => sum + r.chance, 0);
-      let rnd = Math.random() * total;
+      let rnd = Math.random() * 100;
       let sum = 0;
       for (let r of rarities) {
         sum += r.chance;
-        if (rnd < sum) {
-          return r.type;
-        }
+        if (rnd < sum) return r.name;
       }
       return "common";
     }
