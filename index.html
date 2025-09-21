@@ -36,6 +36,7 @@
       opacity: 0;
       transition: opacity 1s ease-in;
     }
+    /* สีตามระดับ */
     .common { background: gray; }
     .rare { background: blue; }
     .epic { background: purple; }
@@ -50,12 +51,12 @@
   <div id="quoteBox"></div>
 
   <!-- โหลดเสียง -->
-  <audio id="rollSound" src="sounds/roll.mp3" preload="auto"></audio>
-  <audio id="commonSound" src="sounds/common.mp3" preload="auto"></audio>
-  <audio id="rareSound" src="sounds/rare.mp3" preload="auto"></audio>
-  <audio id="epicSound" src="sounds/epic.mp3" preload="auto"></audio>
-  <audio id="legendarySound" src="sounds/legendary.mp3" preload="auto"></audio>
-  <audio id="mythicSound" src="sounds/mythic.mp3" preload="auto"></audio>
+  <audio id="rollSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+  <audio id="commonSound" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
+  <audio id="rareSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="epicSound" src="https://actions.google.com/sounds/v1/cartoon/slide_whistle_to_drum.ogg"></audio>
+  <audio id="legendarySound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="mythicSound" src="https://actions.google.com/sounds/v1/cartoon/metal_twang.ogg"></audio>
 
   <script>
     const quotes = [
@@ -95,7 +96,6 @@
       { text: "ฝันที่ว่าดียังไม่เท่าเจอปารมีที่โรงเรียน", rarity: "mythic" }
     ];
 
-    // ✅ ปรับเปอร์เซ็นต์ได้ง่าย ๆ ตรงนี้
     const rarities = [
       { name: "common", chance: 45 },
       { name: "rare", chance: 30 },
@@ -106,26 +106,17 @@
 
     let lastQuote = null;
 
-    function playSound(rarity) {
-      if (rarity === "rolling") {
-        document.getElementById("rollSound").play();
-      } else {
-        document.getElementById(rarity + "Sound").play();
-      }
-    }
-
     function startRoll() {
       const box = document.getElementById("rarityBox");
       const quoteBox = document.getElementById("quoteBox");
       quoteBox.style.opacity = 0;
       box.style.display = "block";
 
-      let cycles = 20;
+      let cycles = 20; 
       let i = 0;
 
-      playSound("rolling"); // 🔊 เสียงตอนกำลังสุ่ม
-
       let rollInterval = setInterval(() => {
+        document.getElementById("rollSound").play(); // 🔊 เสียงตอนหมุน
         const r = rarities[Math.floor(Math.random() * rarities.length)];
         box.textContent = r.name.toUpperCase();
         box.className = r.name;
@@ -138,8 +129,10 @@
           box.textContent = finalRarity.toUpperCase();
           box.className = finalRarity;
 
-          playSound(finalRarity); // 🔊 เล่นเสียงตามระดับ
+          // ✅ เล่นเสียงตามระดับ
+          playRaritySound(finalRarity);
 
+          // ✅ ดีเลย์ 0.5 วิ ก่อนโชว์คำคม
           setTimeout(() => {
             const filtered = quotes.filter(q => q.rarity === finalRarity);
 
@@ -165,6 +158,21 @@
         if (rnd < sum) return r.name;
       }
       return "common";
+    }
+
+    function playRaritySound(rarity) {
+      const sounds = {
+        common: "commonSound",
+        rare: "rareSound",
+        epic: "epicSound",
+        legendary: "legendarySound",
+        mythic: "mythicSound"
+      };
+      const sound = document.getElementById(sounds[rarity]);
+      if (sound) {
+        sound.currentTime = 0;
+        sound.play();
+      }
     }
   </script>
 </body>
